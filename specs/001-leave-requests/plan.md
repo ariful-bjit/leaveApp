@@ -21,7 +21,8 @@ React Router 7, Mantine 7 (core, dates, notifications)
 
 **Storage**: SQLite (Django ORM, migrations)
 
-**Testing**: pytest + pytest-django (backend); Vitest + React Testing Library (frontend)
+**Testing**: pytest + pytest-django (backend); Vitest + React Testing Library + vitest-axe
+(frontend)
 
 **Target Platform**: Web browser (current Chrome, Edge, Firefox, Safari); server on any OS
 running Python 3.12

@@ -111,10 +111,16 @@ React frontend, pytest.
     overlap, and balance rules; API tests for every endpoint and permission rule.
   - Frontend: Vitest + React Testing Library (+ `@testing-library/user-event`), with API
     calls mocked at the `fetch` layer.
+  - Accessibility: `vitest-axe` (dev-only) runs automated axe checks on every page in the
+    Vitest suite, plus role/label assertions with Testing Library.
   - One command per side: `pytest` in `backend/`, `npm test` in `frontend/`.
 - **Rationale**: Principle I requires automated tests for every change, including UI
   changes; pytest (user-requested) cannot test React components, so Vitest is the
-  smallest addition that integrates with Vite.
+  smallest addition that integrates with Vite. Principle III requires accessibility and
+  Principle I requires it to be tested automatically; `vitest-axe` is a small dev-only
+  dependency that turns that requirement into a repeatable test instead of a manual review.
+  Limitation: axe in jsdom cannot measure color contrast or real layout, so contrast relies
+  on Mantine's default palette and 360 px layout is checked by hand in the quickstart.
 - **Alternatives considered**: Playwright end-to-end tests: valuable later but heavier;
   deferred. Jest: needs extra config with Vite.
 
