@@ -129,3 +129,32 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return LeaveRequest.objects.create(employee=self.context["employee"], **validated_data)
+
+
+class TeamRequestSerializer(LeaveRequestSerializer):
+    employee_balance = serializers.SerializerMethodField()
+
+    class Meta(LeaveRequestSerializer.Meta):
+        fields = LeaveRequestSerializer.Meta.fields + ["employee_balance"]
+
+    def get_employee_balance(self, leave_request):
+        year = leave_request.start_date.year
+        data = {"year": year, **rules.balance(leave_request.employee, year)}
+        return BalanceSerializer(data).data
+
+
+class DecisionSerializer(serializers.Serializer):
+    """Manager decision. The comment is optional on approve and required on reject."""
+
+    comment = serializers.CharField(max_length=500, required=False, allow_blank=True, default="")
+
+    def __init__(self, *args, comment_required=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if comment_required:
+            self.fields["comment"] = serializers.CharField(
+                max_length=500,
+                error_messages={
+                    "required": "Add a comment explaining the rejection.",
+                    "blank": "Add a comment explaining the rejection.",
+                },
+            )

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import {
   Button,
   Group,
-  Modal,
   Paper,
   ScrollArea,
   Stack,
@@ -15,6 +14,7 @@ import { notifications } from "@mantine/notifications";
 import { Link } from "react-router-dom";
 import { cancelRequest, listMyRequests } from "../api/requests";
 import type { LeaveRequest } from "../api/types";
+import { AppModal } from "../components/AppModal";
 import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { StatusBadge } from "../components/StatusBadge";
 import { formatDateRange, formatDays, formatDuration } from "../lib/format";
@@ -144,11 +144,10 @@ export default function MyRequests() {
       </Group>
       {content}
 
-      <Modal
+      <AppModal
         opened={toCancel !== null}
         onClose={() => setToCancel(null)}
         title="Cancel this leave request?"
-        centered
       >
         <Stack>
           {toCancel && (
@@ -166,7 +165,7 @@ export default function MyRequests() {
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
     </Stack>
   );
 }

@@ -36,6 +36,8 @@ export default function Layout() {
               hiddenFrom="sm"
               size="sm"
               aria-label="Toggle navigation"
+              aria-expanded={opened}
+              aria-controls="main-navigation"
             />
             <Title order={2} size="h3" c="indigo.7">
               LeaveDesk
@@ -52,7 +54,7 @@ export default function Layout() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="sm" aria-label="Main navigation">
+      <AppShell.Navbar p="sm" id="main-navigation" aria-label="Main navigation">
         {navItems.map((item) => (
           <NavLink
             key={item.to}

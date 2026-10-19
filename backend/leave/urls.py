@@ -10,4 +10,7 @@ urlpatterns = [
     path("balance", views.BalanceView.as_view()),
     path("requests", views.MyRequestsView.as_view()),
     path("requests/<int:pk>/cancel", views.CancelRequestView.as_view()),
+    path("team/requests", views.TeamRequestsView.as_view()),
+    path("team/requests/<int:pk>/approve", views.ApproveView.as_view()),
+    path("team/requests/<int:pk>/reject", views.RejectView.as_view()),
 ]

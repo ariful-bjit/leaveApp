@@ -11,7 +11,14 @@ from rest_framework.views import APIView
 
 from . import rules
 from .models import Employee, LeaveRequest
-from .serializers import BalanceSerializer, LeaveRequestSerializer, LoginSerializer, MeSerializer
+from .serializers import (
+    BalanceSerializer,
+    DecisionSerializer,
+    LeaveRequestSerializer,
+    LoginSerializer,
+    MeSerializer,
+    TeamRequestSerializer,
+)
 
 
 def current_employee(request):
@@ -99,3 +106,55 @@ class BalanceView(APIView):
             return Response({"year": ["Year must be a number."]}, status=status.HTTP_400_BAD_REQUEST)
         data = {"year": year, **rules.balance(employee, year)}
         return Response(BalanceSerializer(data).data)
+
+
+class TeamRequestsView(APIView):
+    def get(self, request):
+        manager = current_employee(request)
+        status_filter = request.query_params.get("status", LeaveRequest.Status.PENDING)
+        if status_filter not in LeaveRequest.Status.values:
+            return Response(
+                {"status": [f"Status must be one of {', '.join(LeaveRequest.Status.values)}."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        requests = (
+            LeaveRequest.objects.filter(employee__manager=manager, status=status_filter)
+            .select_related("employee__user", "decided_by__user")
+            .order_by("start_date", "id")[:200]
+        )
+        return Response(TeamRequestSerializer(requests, many=True).data)
+
+
+class DecisionView(APIView):
+    """Approve or reject a direct report's pending request. First decision wins."""
+
+    new_status = None
+    comment_required = False
+
+    def post(self, request, pk):
+        manager = current_employee(request)
+        leave_request = get_object_or_404(LeaveRequest, pk=pk, employee__manager=manager)
+        serializer = DecisionSerializer(data=request.data, comment_required=self.comment_required)
+        serializer.is_valid(raise_exception=True)
+
+        updated = LeaveRequest.objects.filter(
+            pk=leave_request.pk, status=LeaveRequest.Status.PENDING
+        ).update(
+            status=self.new_status,
+            decision_comment=serializer.validated_data["comment"].strip(),
+            decided_by=manager,
+            decided_at=timezone.now(),
+        )
+        if not updated:
+            return Response({"detail": ALREADY_DECIDED}, status=status.HTTP_409_CONFLICT)
+        leave_request.refresh_from_db()
+        return Response(LeaveRequestSerializer(leave_request).data)
+
+
+class ApproveView(DecisionView):
+    new_status = LeaveRequest.Status.APPROVED
+
+
+class RejectView(DecisionView):
+    new_status = LeaveRequest.Status.REJECTED
+    comment_required = True

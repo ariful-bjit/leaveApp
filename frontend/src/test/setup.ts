@@ -1,10 +1,16 @@
 import "@testing-library/jest-dom/vitest";
-import "vitest-axe/extend-expect";
+import { notifications } from "@mantine/notifications";
 import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
+import { afterEach, expect, vi } from "vitest";
+import * as axeMatchers from "vitest-axe/matchers";
+
+// vitest-axe's extend-expect entry targets an older Vitest; register its matcher directly.
+expect.extend(axeMatchers);
 
 afterEach(() => {
   cleanup();
+  // Mantine keeps notifications in a module-level store; don't leak them between tests.
+  notifications.clean();
   vi.restoreAllMocks();
   document.cookie = "csrftoken=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 });

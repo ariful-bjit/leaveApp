@@ -34,6 +34,7 @@ export default function NewRequest() {
   const [half, setHalf] = useState<Half>("MORNING");
   const [reason, setReason] = useState("");
   const [balance, setBalance] = useState<Balance | null>(null);
+  const [balanceFailed, setBalanceFailed] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -48,8 +49,16 @@ export default function NewRequest() {
     if (!me?.has_manager) return;
     let active = true;
     getBalance(year)
-      .then((b) => active && setBalance(b))
-      .catch(() => active && setBalance(null));
+      .then((b) => {
+        if (!active) return;
+        setBalance(b);
+        setBalanceFailed(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setBalance(null);
+        setBalanceFailed(true);
+      });
     return () => {
       active = false;
     };
@@ -197,6 +206,12 @@ export default function NewRequest() {
                   </>
                 )}
               </Text>
+              {balanceFailed && (
+                <Text size="sm" c="orange.9" mt={4}>
+                  Could not load your available balance. You can still submit; the server will
+                  check it.
+                </Text>
+              )}
             </Paper>
 
             <Group justify="flex-end">

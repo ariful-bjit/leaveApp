@@ -118,16 +118,16 @@ page (quickstart scenarios 5 and 7).
 
 ### Tests for User Story 2 ⚠️ (write first, confirm they fail)
 
-- [ ] T038 [P] [US2] Write `backend/leave/tests/test_team_api.py`: `GET /api/team/requests` as `maya` returns only `PENDING` requests of `rina`/`tom` (not `sam`'s, not her own), each with `employee_balance` for the request's year; `?status=APPROVED` filters; as a non-manager returns `[]`; `POST /api/team/requests/{id}/approve` → 200 `APPROVED`, sets `decided_by`, `decided_at`, optional `decision_comment`, and the employee's `used` balance increases by `working_days`; `POST .../reject` with comment → 200 `REJECTED`, balance unchanged; reject with empty or missing comment → 400; comment over 500 chars → 400; request of a non-direct report (including the manager's own) → 404; deciding an already decided or cancelled request (second of two decisions) → 409 `{"detail": "This request has already been decided."}`
-- [ ] T039 [P] [US2] Write `frontend/src/pages/Team.test.tsx` (mock `fetch`): loading, empty ("No pending requests"), and error states; rows show employee, dates, days, reason, remaining balance; Approve posts and removes the row with a success notification; Reject opens a dialog whose Confirm stays disabled until a comment is entered, then posts and removes the row; 409 shows "This request has already been decided." and refreshes
+- [X] T038 [P] [US2] Write `backend/leave/tests/test_team_api.py`: `GET /api/team/requests` as `maya` returns only `PENDING` requests of `rina`/`tom` (not `sam`'s, not her own), each with `employee_balance` for the request's year; `?status=APPROVED` filters; as a non-manager returns `[]`; `POST /api/team/requests/{id}/approve` → 200 `APPROVED`, sets `decided_by`, `decided_at`, optional `decision_comment`, and the employee's `used` balance increases by `working_days`; `POST .../reject` with comment → 200 `REJECTED`, balance unchanged; reject with empty or missing comment → 400; comment over 500 chars → 400; request of a non-direct report (including the manager's own) → 404; deciding an already decided or cancelled request (second of two decisions) → 409 `{"detail": "This request has already been decided."}`
+- [X] T039 [P] [US2] Write `frontend/src/pages/Team.test.tsx` (mock `fetch`): loading, empty ("No pending requests"), and error states; rows show employee, dates, days, reason, remaining balance; Approve posts and removes the row with a success notification; Reject opens a dialog whose Confirm stays disabled until a comment is entered, then posts and removes the row; 409 shows "This request has already been decided." and refreshes
 
 ### Implementation for User Story 2
 
-- [ ] T040 [US2] Add `TeamRequestSerializer` (`LeaveRequestSerializer` + `employee_balance` from `rules.balance(employee, start_date.year)`) and `DecisionSerializer` (`comment`, ≤ 500 chars; `required=True, allow_blank=False` for reject) in `backend/leave/serializers.py`
-- [ ] T041 [US2] Implement views in `backend/leave/views.py`: `GET /api/team/requests?status=` (default `PENDING`; requests where `employee__manager` is the caller), `POST /api/team/requests/{id}/approve` and `/reject` (404 unless `employee.manager` is the caller; conditional update `filter(pk=id, status="PENDING").update(status=..., decision_comment=..., decided_by=caller, decided_at=timezone.now())`, 409 if 0 rows); add routes in `backend/leave/urls.py`; make T038 pass
-- [ ] T042 [P] [US2] Implement `frontend/src/api/team.ts` (`listTeamRequests(status?)`, `approveRequest(id, comment?)`, `rejectRequest(id, comment)`)
-- [ ] T043 [US2] Implement `frontend/src/pages/Team.tsx` (Mantine `Table` in `ScrollArea`, green Approve / red outline Reject buttons with loading states, reject `Modal` with required `Textarea`, `LoadingState` / `EmptyState` / `ErrorState`); make T039 pass
-- [ ] T044 [US2] Replace the `/team` placeholder in `frontend/src/App.tsx` with `Team` wrapped in `RequireAuth managerOnly`
+- [X] T040 [US2] Add `TeamRequestSerializer` (`LeaveRequestSerializer` + `employee_balance` from `rules.balance(employee, start_date.year)`) and `DecisionSerializer` (`comment`, ≤ 500 chars; `required=True, allow_blank=False` for reject) in `backend/leave/serializers.py`
+- [X] T041 [US2] Implement views in `backend/leave/views.py`: `GET /api/team/requests?status=` (default `PENDING`; requests where `employee__manager` is the caller), `POST /api/team/requests/{id}/approve` and `/reject` (404 unless `employee.manager` is the caller; conditional update `filter(pk=id, status="PENDING").update(status=..., decision_comment=..., decided_by=caller, decided_at=timezone.now())`, 409 if 0 rows); add routes in `backend/leave/urls.py`; make T038 pass
+- [X] T042 [P] [US2] Implement `frontend/src/api/team.ts` (`listTeamRequests(status?)`, `approveRequest(id, comment?)`, `rejectRequest(id, comment)`)
+- [X] T043 [US2] Implement `frontend/src/pages/Team.tsx` (Mantine `Table` in `ScrollArea`, green Approve / red outline Reject buttons with loading states, reject `Modal` with required `Textarea`, `LoadingState` / `EmptyState` / `ErrorState`); make T039 pass
+- [X] T044 [US2] Replace the `/team` placeholder in `frontend/src/App.tsx` with `Team` wrapped in `RequireAuth managerOnly`
 
 **Checkpoint**: US1 and US2 both work (quickstart 1–5, 7); all tests pass.
 
@@ -143,14 +143,14 @@ dashboard shows correct figures and reflects a new approval (quickstart scenario
 
 ### Tests for User Story 3 ⚠️ (write first, confirm they fail)
 
-- [ ] T045 [P] [US3] Write `frontend/src/components/BalanceCards.test.tsx`: given a `Balance`, renders four labelled cards "Allowance", "Used", "Pending", "Remaining" with values formatted without a trailing ".0" (e.g. `"15"`, `"14.5"`)
-- [ ] T046 [P] [US3] Write `frontend/src/pages/Dashboard.test.tsx` (mock `fetch`): loading and error states; shows `BalanceCards` for the current year from `GET /balance`; "Request leave" button links to `/requests/new`; lists up to 5 most recent requests with `StatusBadge`; empty state when there are no requests
+- [X] T045 [P] [US3] Write `frontend/src/components/BalanceCards.test.tsx`: given a `Balance`, renders four labelled cards "Allowance", "Used", "Pending", "Remaining" with values formatted without a trailing ".0" (e.g. `"15"`, `"14.5"`)
+- [X] T046 [P] [US3] Write `frontend/src/pages/Dashboard.test.tsx` (mock `fetch`): loading and error states; shows `BalanceCards` for the current year from `GET /balance`; "Request leave" button links to `/requests/new`; lists up to 5 most recent requests with `StatusBadge`; empty state when there are no requests
 
 ### Implementation for User Story 3
 
-- [ ] T047 [P] [US3] Implement `frontend/src/components/BalanceCards.tsx` (Mantine `SimpleGrid` cols `{base: 2, sm: 4}` of `Paper` cards with label and large number); make T045 pass
-- [ ] T048 [US3] Implement `frontend/src/pages/Dashboard.tsx` (title "Hello, {first name}", `BalanceCards`, "Request leave" button, recent requests list); make T046 pass
-- [ ] T049 [US3] In `frontend/src/App.tsx`, replace the `/` redirect with `Dashboard`
+- [X] T047 [P] [US3] Implement `frontend/src/components/BalanceCards.tsx` (Mantine `SimpleGrid` cols `{base: 2, sm: 4}` of `Paper` cards with label and large number); make T045 pass
+- [X] T048 [US3] Implement `frontend/src/pages/Dashboard.tsx` (title "Hello, {first name}", `BalanceCards`, "Request leave" button, recent requests list); make T046 pass
+- [X] T049 [US3] In `frontend/src/App.tsx`, replace the `/` redirect with `Dashboard`
 
 **Checkpoint**: All three stories work independently; all tests pass.
 
@@ -158,10 +158,10 @@ dashboard shows correct figures and reflects a new approval (quickstart scenario
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T050 [P] Write root `README.md`: what LeaveDesk is, prerequisites, backend and frontend run commands, test commands (`pytest`, `npm test`), and demo users, linking to [quickstart.md](quickstart.md)
-- [ ] T051 [P] Add a `frontend/src/App.test.tsx` route test: signed-out visit to `/requests` redirects to `/login`; non-manager visit to `/team` redirects to `/`; unknown route shows a "Page not found" `EmptyState` with a link home (add the catch-all route in `frontend/src/App.tsx`)
-- [ ] T052 Accessibility and responsive pass, tests first (Constitution I, III): (a) write `frontend/src/test/a11y.test.tsx` that renders `Login`, `Dashboard`, `MyRequests`, `NewRequest`, and `Team` with mocked data via `renderWithProviders` and asserts `expect(await axe(container)).toHaveNoViolations()` (from `vitest-axe`); (b) in the same file, assert by role and accessible name that every form input has a label (`getByLabelText`), every button has a name (`getAllByRole("button")` each with non-empty accessible name), and every table is wrapped in a horizontally scrollable `ScrollArea`; (c) confirm these tests fail where issues exist, then fix `frontend/src/pages/*.tsx` and `frontend/src/components/*.tsx` until they pass; (d) keep Mantine's default visible focus ring (do not set `focusRing: "never"` in `frontend/src/theme.ts`) and verify keyboard-only navigation and 360 px width by hand during T054
-- [ ] T053 Run `pytest` in `backend/`, `npm test` and `npm run build` in `frontend/`; all must pass with no type errors
+- [X] T050 [P] Write root `README.md`: what LeaveDesk is, prerequisites, backend and frontend run commands, test commands (`pytest`, `npm test`), and demo users, linking to [quickstart.md](quickstart.md)
+- [X] T051 [P] Add a `frontend/src/App.test.tsx` route test: signed-out visit to `/requests` redirects to `/login`; non-manager visit to `/team` redirects to `/`; unknown route shows a "Page not found" `EmptyState` with a link home (add the catch-all route in `frontend/src/App.tsx`)
+- [X] T052 Accessibility and responsive pass, tests first (Constitution I, III): (a) write `frontend/src/test/a11y.test.tsx` that renders `Login`, `Dashboard`, `MyRequests`, `NewRequest`, and `Team` with mocked data via `renderWithProviders` and asserts `expect(await axe(container)).toHaveNoViolations()` (from `vitest-axe`); (b) in the same file, assert by role and accessible name that every form input has a label (`getByLabelText`), every button has a name (`getAllByRole("button")` each with non-empty accessible name), and every table is wrapped in a horizontally scrollable `ScrollArea`; (c) confirm these tests fail where issues exist, then fix `frontend/src/pages/*.tsx` and `frontend/src/components/*.tsx` until they pass; (d) keep Mantine's default visible focus ring (do not set `focusRing: "never"` in `frontend/src/theme.ts`) and verify keyboard-only navigation and 360 px width by hand during T054
+- [X] T053 Run `pytest` in `backend/`, `npm test` and `npm run build` in `frontend/`; all must pass with no type errors
 - [ ] T054 Run the manual scenarios in [quickstart.md](quickstart.md) against `seed_demo` data and fix any defects (each fix with a regression test)
 
 ---
@@ -240,3 +240,15 @@ Task: "T034 frontend/src/components/StatusBadge.tsx"
 - All UI uses the shared Mantine theme and the `States` components (Constitution III).
 - Production hosting of the built frontend is out of scope for this task list.
 - Commit after each task or logical group.
+
+---
+
+## Phase 7: Convergence
+
+- [X] T055 CRITICAL: Add `backend/leave/tests/test_admin.py` asserting a superuser (created with `User.objects.create_superuser`) gets 200 from `/admin/leave/employee/`, `/admin/leave/employee/add/`, `/admin/leave/leaverequest/`, and `/admin/leave/leaverequest/add/`, and that a demo (non-staff) user is redirected to the admin login, covering the registrations in `backend/leave/admin.py` per Constitution I (contradicts)
+- [X] T056 CRITICAL: Add tests to `backend/leave/tests/test_auth_api.py` for a `User` with no `Employee` profile: `POST /api/auth/login` returns 400 `{"non_field_errors": ["Invalid username or password."]}`, and after `force_login` both `GET /api/auth/me` and `GET /api/requests` return 403 `{"detail": "Your account has no employee profile."}` per Constitution I (contradicts)
+- [X] T057 CRITICAL: Add a test to `frontend/src/components/Layout.test.tsx` that clicking the "Toggle navigation" button marks it expanded/opened and that clicking a navbar link (e.g. "My requests") navigates and closes the menu again, covering the mobile navigation in `frontend/src/components/Layout.tsx` per Constitution I (contradicts)
+- [X] T058 CRITICAL: Remove the unused `@mantine/dates` dependency from `frontend/package.json` (via `npm uninstall @mantine/dates`) and the `import "@mantine/dates/styles.css"` line from `frontend/src/main.tsx`; `frontend/src/pages/NewRequest.tsx` uses native date inputs instead of the `DatePickerInput` planned in T035. Run `npm test` and `npm run build` afterwards, per Constitution II and plan: primary dependencies (contradicts)
+- [X] T059 CRITICAL: Remove the unrequested `postcss-simple-vars` dev dependency (`npm uninstall postcss-simple-vars`) and its block from `frontend/postcss.config.cjs`, keeping only `postcss-preset-mantine`; no CSS module uses the breakpoint variables it defines. Run `npm test` and `npm run build` afterwards, per Constitution II and T004 (unrequested)
+- [X] T060 Let managers add an optional comment when approving: in `frontend/src/pages/Team.tsx`, make Approve open an `AppModal` titled "Approve leave request" with an optional `Textarea` labelled "Comment (optional)" (`maxLength={500}`) and an "Approve request" button that calls `approveRequest(id, comment.trim() || undefined)`; add tests in `frontend/src/pages/Team.test.tsx` for approving with and without a comment (request body `{"comment": "..."}` vs `{}`) and update the approve test accordingly, per FR-009 (partial)
+- [X] T061 Show a non-blocking warning on the request form when the balance cannot be loaded: in `frontend/src/pages/NewRequest.tsx`, replace the silent `.catch(() => setBalance(null))` with state that renders "Could not load your available balance. You can still submit; the server will check it." in the summary area; add a test in `frontend/src/pages/NewRequest.test.tsx` mocking `GET /balance` with status 500, per FR-014 (partial)

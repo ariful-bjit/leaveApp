@@ -68,6 +68,33 @@ def test_me_reports_manager_flags(team, client_for):
     assert sam["is_manager"] is False
 
 
+class TestAccountWithoutEmployeeProfile:
+    NO_PROFILE = {"detail": "Your account has no employee profile."}
+
+    @pytest.fixture
+    def user(self, db):
+        from django.contrib.auth.models import User
+
+        return User.objects.create_user(username="ghost", password="pw")
+
+    def test_cannot_sign_in(self, user):
+        response = APIClient().post(
+            "/api/auth/login", {"username": "ghost", "password": "pw"}, format="json"
+        )
+        assert response.status_code == 400
+        assert response.json() == {"non_field_errors": ["Invalid username or password."]}
+
+    @pytest.mark.parametrize("url", ["/api/auth/me", "/api/requests"])
+    def test_api_is_forbidden(self, user, url):
+        client = APIClient()
+        client.force_login(user)
+
+        response = client.get(url)
+
+        assert response.status_code == 403
+        assert response.json() == self.NO_PROFILE
+
+
 def test_logout_ends_session(team, client_for):
     client = client_for(team["rina"])
     assert client.post("/api/auth/logout").status_code == 204

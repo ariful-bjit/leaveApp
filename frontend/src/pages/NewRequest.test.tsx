@@ -135,6 +135,24 @@ describe("NewRequest", () => {
     expect(screen.queryByText("my requests page")).not.toBeInTheDocument();
   });
 
+  it("warns but still allows submitting when the balance cannot be loaded", async () => {
+    mockApi([
+      { path: /\/api\/balance/, status: 500, body: { detail: "Server error" } },
+      { method: "POST", path: "/requests", status: 201, body: { id: 3 } },
+    ]);
+    renderPage();
+
+    expect(
+      await screen.findByText(
+        "Could not load your available balance. You can still submit; the server will check it.",
+      ),
+    ).toBeInTheDocument();
+    setDate(/start date/i, "2026-11-02");
+    setDate(/end date/i, "2026-11-02");
+    await userEvent.click(screen.getByRole("button", { name: "Submit request" }));
+    expect(await screen.findByText("my requests page")).toBeInTheDocument();
+  });
+
   it("keeps submit disabled until dates are chosen", async () => {
     mockApi([{ path: /\/api\/balance/, body: balance }]);
     renderPage();
