@@ -32,6 +32,22 @@ def test_login_with_invalid_credentials_returns_400(team):
     assert response.json() == {"non_field_errors": ["Invalid username or password."]}
 
 
+def test_login_with_csrf_token_and_same_origin_succeeds(team):
+    """What a browser sends through the Vite proxy: token header plus a matching Origin."""
+    client = APIClient(enforce_csrf_checks=True)
+    client.get("/api/auth/csrf", HTTP_HOST="localhost:5173")
+    token = client.cookies["csrftoken"].value
+    response = client.post(
+        "/api/auth/login",
+        {"username": "rina", "password": "pw"},
+        format="json",
+        HTTP_HOST="localhost:5173",
+        HTTP_ORIGIN="http://localhost:5173",
+        HTTP_X_CSRFTOKEN=token,
+    )
+    assert response.status_code == 200
+
+
 def test_login_enforces_csrf(team):
     client = APIClient(enforce_csrf_checks=True)
     response = client.post("/api/auth/login", {"username": "rina", "password": "pw"}, format="json")
